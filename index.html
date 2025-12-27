@@ -82,5 +82,63 @@
   </footer>
 
   <script type="module" src="/js/index.js"></script>
+  <script type="module">
+    import AnalyticsConsent from "https://cdn.yangdujun.top/js/ac.js";
+    import { PingMonitor } from "https://cdn.yangdujun.top/js/ac.js"
+    const pingMonitor = new PingMonitor();
+
+    let customEventTriggered = false;
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const analytics = new AnalyticsConsent({
+        umamiUrl: "https://js.yangdujun.top/version.js",
+        websiteId: "8735c089-ae7a-47c3-b2e2-65976c67e3b0",
+        theme: "auto",
+        onConsentChange: function (consent, isEUUser, source) {
+          console.log(
+            "用户选择:",
+            consent ? "同意" : "拒绝",
+            "来源:",
+            source,
+            "欧盟:",
+            isEUUser
+          );
+
+          if (consent && !customEventTriggered) {
+            customEventTriggered = true;
+            sendConsentEvent(source, isEUUser);
+          }
+        },
+      });
+      function sendConsentEvent(source, isEUUser) {
+        console.log("发送同意事件，包含标题信息");
+
+        // 使用事件名称 + 事件数据的方式
+        const eventData = {
+          title: document.title, // 标题信息
+          url: window.location.href,
+          source: source, // 'default', 'saved', 'user'
+          eu_user: isEUUser,
+          language: navigator.language,
+          referrer: document.referrer || "direct",
+          time: new Date().toLocaleString("zh-CN"),
+          usergent:navigator.userAgent
+        };
+
+        // 等待 umami 可用
+        const waitForUmami = setInterval(() => {
+          if (window.umami) {
+            clearInterval(waitForUmami);
+            pingMonitor.start();
+            umami.track("consent_approved", eventData);
+            console.log("✅ 同意事件已发送:", eventData);
+          }
+        }, 100);
+
+        // 10秒超时
+        setTimeout(() => clearInterval(waitForUmami), 10000);
+      }
+    });
+  </script>
 </body>
 </html>
