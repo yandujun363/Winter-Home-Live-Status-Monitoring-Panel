@@ -9,80 +9,80 @@ class AuraNotify {
         this.currentIndex = 0;
         this.notifications = new Map();
         this.isInitialized = false;
-        
+
         this.init();
     }
-    
+
     /**
      * 初始化通知系统
      */
     init() {
         if (this.isInitialized) return;
-        
+
         // 创建通知容器（如果不存在）
         this.createContainer();
-        
+
         // 绑定事件监听器
         this.bindEvents();
-        
+
         this.isInitialized = true;
     }
-    
+
     /**
      * 创建通知容器
      */
     createContainer() {
         if (document.querySelector(this.containerSelector)) return;
-        
+
         const container = document.createElement('div');
         container.id = this.containerSelector.substring(1);
         container.className = 'aura-notice-container';
         document.body.appendChild(container);
     }
-    
+
     /**
      * 绑定事件监听器
      */
     bindEvents() {
         const container = document.querySelector(this.containerSelector);
-        
+
         // 关闭按钮点击事件
         container.addEventListener('click', (e) => {
             const closeBtn = e.target.closest('.aura-notice-close');
             if (!closeBtn) return;
-            
+
             const notification = closeBtn.closest('.aura-notice');
             const index = parseInt(notification.dataset.index);
-            
+
             if (e.shiftKey) {
                 this.closeAll();
                 return;
             }
-            
+
             this.close(index);
         });
-        
+
         // 通知点击事件（排除关闭按钮）
         container.addEventListener('click', (e) => {
             if (e.target.closest('.aura-notice-close')) return;
-            
+
             const notification = e.target.closest('.aura-notice');
             if (!notification) return;
-            
+
             const index = parseInt(notification.dataset.index);
             this.triggerCallback(index, 'click');
         });
-        
+
         // 动画结束事件
         container.addEventListener('animationend', (e) => {
             const notification = e.target.closest('.aura-notice');
             if (!notification) return;
-            
+
             // 移除入场动画类
             if (notification.classList.contains('aura-notice-enter')) {
                 notification.classList.remove('aura-notice-enter');
             }
-            
+
             // 处理退场动画
             if (notification.classList.contains('aura-notice-exit')) {
                 notification.remove();
@@ -91,7 +91,7 @@ class AuraNotify {
             }
         });
     }
-    
+
     /**
      * 显示通知
      * @param {Object} options 通知配置
@@ -100,20 +100,20 @@ class AuraNotify {
     show(options = {}) {
         const config = this.normalizeConfig(options);
         const index = this.currentIndex++;
-        
+
         // 如果指定了ID，检查是否已存在
         if (config.id) {
             const existing = this.findByID(config.id);
             if (existing) this.close(existing.index, true);
         }
-        
+
         // 创建通知元素
         const notification = this.createNotification(config, index);
-        
+
         // 添加到容器
         const container = document.querySelector(this.containerSelector);
         container.prepend(notification);
-        
+
         // 设置自动关闭
         let autoCloseTimer = null;
         if (config.duration > 0) {
@@ -121,7 +121,7 @@ class AuraNotify {
                 this.close(index);
             }, config.duration);
         }
-        
+
         // 存储通知数据
         this.notifications.set(index, {
             id: config.id,
@@ -130,10 +130,10 @@ class AuraNotify {
             timer: autoCloseTimer,
             controller: new NotificationController(this, index)
         });
-        
+
         return index;
     }
-    
+
     /**
      * 简化调用方法 - 显示信息通知
      * @param {string} message 消息内容
@@ -148,7 +148,7 @@ class AuraNotify {
             ...options
         });
     }
-    
+
     /**
      * 简化调用方法 - 显示成功通知
      */
@@ -160,7 +160,7 @@ class AuraNotify {
             ...options
         });
     }
-    
+
     /**
      * 简化调用方法 - 显示警告通知
      */
@@ -172,7 +172,7 @@ class AuraNotify {
             ...options
         });
     }
-    
+
     /**
      * 简化调用方法 - 显示错误通知
      */
@@ -184,7 +184,7 @@ class AuraNotify {
             ...options
         });
     }
-    
+
     /**
      * 标准化配置
      */
@@ -201,29 +201,29 @@ class AuraNotify {
             icon: null,
             customClass: ''
         };
-        
+
         return { ...defaults, ...options };
     }
-    
+
     /**
      * 创建通知元素
      */
     createNotification(config, index) {
         const notification = document.createElement('div');
         notification.className = `aura-notice aura-notice-${config.type} ${config.customClass}`;
-        
+
         if (config.animation) {
             notification.classList.add('aura-notice-enter');
         }
-        
+
         notification.dataset.index = index;
         if (config.id) notification.dataset.id = config.id;
         if (config.width) notification.style.width = config.width;
-        
+
         // 构建通知内容
         const icon = config.icon ? this.createIcon(config.icon) : this.getDefaultIcon(config.type);
         const title = config.title ? `<div class="aura-notice-title">${config.title}</div>` : '';
-        
+
         notification.innerHTML = `
             <div class="aura-notice-content">
                 <div class="aura-notice-icon">${icon}</div>
@@ -234,10 +234,10 @@ class AuraNotify {
             </div>
             <button class="aura-notice-close" aria-label="关闭通知">×</button>
         `;
-        
+
         return notification;
     }
-    
+
     /**
      * 创建图标元素
      */
@@ -245,7 +245,7 @@ class AuraNotify {
         if (icon.startsWith('<')) return icon;
         return `<span class="aura-notice-icon-text">${icon}</span>`;
     }
-    
+
     /**
      * 获取默认图标
      */
@@ -259,10 +259,10 @@ class AuraNotify {
             trophy: '🏆',
             tips: '💡'
         };
-        
+
         return `<span class="aura-notice-icon-text">${icons[type] || icons.info}</span>`;
     }
-    
+
     /**
      * 通过ID查找通知
      */
@@ -272,7 +272,7 @@ class AuraNotify {
         }
         return null;
     }
-    
+
     /**
      * 关闭通知
      * @param {number} index 通知索引
@@ -282,22 +282,22 @@ class AuraNotify {
         const notification = document.querySelector(
             `${this.containerSelector} .aura-notice[data-index="${index}"]`
         );
-        
+
         if (!notification) {
             this.cleanupNotification(index);
             return;
         }
-        
+
         if (immediate) {
             notification.remove();
             this.cleanupNotification(index);
         } else {
             notification.classList.add('aura-notice-exit');
         }
-        
+
         this.triggerCallback(index, 'close');
     }
-    
+
     /**
      * 通过ID关闭通知
      */
@@ -305,7 +305,7 @@ class AuraNotify {
         const found = this.findByID(id);
         if (found) this.close(found.index, immediate);
     }
-    
+
     /**
      * 关闭所有通知
      */
@@ -314,13 +314,13 @@ class AuraNotify {
         notifications.forEach(notification => {
             notification.classList.add('aura-notice-exit');
         });
-        
+
         // 清理所有存储的数据
         this.notifications.forEach((data, index) => {
             this.cleanupNotification(index);
         });
     }
-    
+
     /**
      * 清理通知数据
      */
@@ -331,7 +331,7 @@ class AuraNotify {
             this.notifications.delete(index);
         }
     }
-    
+
     /**
      * 触发回调函数
      */
@@ -341,7 +341,7 @@ class AuraNotify {
             data.callback(action, data.controller);
         }
     }
-    
+
     /**
      * 更新通知标题
      */
@@ -351,7 +351,7 @@ class AuraNotify {
         );
         if (notification) notification.textContent = title;
     }
-    
+
     /**
      * 更新通知内容
      */
@@ -361,7 +361,7 @@ class AuraNotify {
         );
         if (notification) notification.textContent = message;
     }
-    
+
     /**
      * 获取通知数量
      */
@@ -379,35 +379,35 @@ class NotificationController {
         this.notifier = notifier;
         this.index = index;
     }
-    
+
     /**
      * 立即关闭通知（无动画）
      */
     remove() {
         this.notifier.close(this.index, true);
     }
-    
+
     /**
      * 关闭通知（带动画）
      */
     close() {
         this.notifier.close(this.index, false);
     }
-    
+
     /**
      * 更新标题
      */
     setTitle(title) {
         this.notifier.updateTitle(this.index, title);
     }
-    
+
     /**
      * 更新内容
      */
     setMessage(message) {
         this.notifier.updateMessage(this.index, message);
     }
-    
+
     /**
      * 获取通知索引
      */
