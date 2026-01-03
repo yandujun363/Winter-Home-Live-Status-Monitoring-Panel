@@ -13,8 +13,9 @@
 
 **请注意：**
 - 主播数据**仅限冬日之家群内成员申请添加**
-- 不通过 GitHub Issues 或 Pull Request 接收主播数据
+- 不通过 GitHub Issues 或 Pull Request 接收主播数据，但是接受优化代码相关的Issues或者Pull Request，但是不要动`data.json`，也不要动SEO相关内容
 - 如需加入监控列表，请在群里直接联系我（开发者）
+- 项目代码部分使用MIT协议，但是如果要作为模板复用，记得修改相关信息，比如标题和说明什么的，还有后端API请自己搭建，不要用我的，还有记得标源项目名字`yandujun363/Winter-Home-Live-Status-Monitoring-Panel`
 
 **技术栈：**
 - HTML / CSS / JavaScript (原生 ES6+)
