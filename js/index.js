@@ -144,8 +144,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const status = liveStatus[uid];
                 if (status) {
                     streamers.push({
-                        uid: parseInt(uid),
-                        name: status.uname || `主播${uid}`,
+                        id: parseInt(uid,10),
+                        uid: parseInt(uid,10),
+                        name: status.uname || `主播_${uid}`,
                         liveStatus: status,
                         living: status.live_status === 1,
                         // 如果需要其他信息，可以在这里添加
