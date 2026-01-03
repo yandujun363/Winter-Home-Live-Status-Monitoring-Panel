@@ -1,4 +1,4 @@
-import { SystemNotice } from "/js/SystemNotice.js";
+import AuraNotify from "/js/AuraNotify.js";
 
 // 移除不需要的依赖和功能
 
@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     let streamers = [];
     let isRefreshing = false;
-    const Notice = new SystemNotice("#fh-notice");
+    const Notify = new AuraNotify();
 
     // 排序配置（简化）
     const sortOptions = {
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return validUids;
         } catch (err) {
             console.error('加载UID数据失败:', err);
-            Notice.send(`加载UID数据失败: ${err.message}`, "数据加载", "error");
+            Notify.error(`加载UID数据失败: ${err.message}`, "数据加载");
             return [];
         }
     }
@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         } catch (err) {
             console.error('获取直播状态失败:', err);
-            Notice.send(`获取直播状态失败: ${err.message}`, "直播状态", "error");
+            Notify.error(`获取直播状态失败: ${err.message}`, "直播状态");
             return {};
         }
     }
@@ -167,12 +167,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             // 更新时间戳
             $lastUpdate.textContent = new Date().toLocaleString('zh-CN');
 
-            Notice.send(`数据更新成功 (${streamers.length}位主播)`, "数据更新", "success", {
-                waitTime: 3000
+            Notify.success(`数据更新成功 (${streamers.length}位主播)`, "数据更新", {
+                duration: 3000
             });
         } catch (err) {
             console.error('获取数据时出错:', err);
-            Notice.send(`数据获取失败: ${err.message}`, "数据错误", "error");
+            Notify.error(`数据获取失败: ${err.message}`, "数据错误");
             updateConnectionStatus(-1);
         } finally {
             isRefreshing = false;
@@ -236,7 +236,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         } catch (err) {
             console.error("渲染主播列表时出错:", err);
-            Notice.send(`渲染失败: ${err.message}`, "渲染错误", "error");
+            Notify.error(`渲染失败: ${err.message}`, "渲染错误");
         }
     }
 
@@ -400,7 +400,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             renderStreamers(filtered);
         } catch (err) {
             console.error("过滤主播时出错:", err);
-            Notice.send(`筛选失败: ${err.message}`, "筛选错误", "error");
+            Notify.error(`筛选失败: ${err.message}`, "筛选错误");
         }
     }
 
@@ -491,7 +491,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             setInterval(fetchData, 5 * 60 * 1000);
         } catch (err) {
             console.error("初始化数据获取时出错:", err);
-            Notice.send(`初始化失败: ${err.message}`, "初始化错误", "error");
+            Notify.error(`初始化失败: ${err.message}`, "初始化错误");
             setTimeout(initDataFetch, 5000);
         }
     }
@@ -510,6 +510,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         initDataFetch();
     } catch (err) {
         console.error("程序初始化失败:", err);
-        Notice.send(`程序初始化失败: ${err.message}`, "启动错误", "error");
+        Notify.error(`程序初始化失败: ${err.message}`, "启动错误");
     }
 });
